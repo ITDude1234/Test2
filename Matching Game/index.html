@@ -1,0 +1,149 @@
+<html>
+	<head>
+		<title>Matching Game</title>
+		<style>
+			body
+			{
+				text-align: center;
+			}
+		</style>
+		<script>			
+			var inputBlocked = true;
+			var cardArray = [];
+			var randomNumbers = [];
+			var selectedCard = null;
+			var tries = 0;
+			
+			// add 16 (blank) cards to card array
+			for (let i=0; i<16; i++)
+			{
+				cardArray[i] = null;
+			}
+			
+			// generateNum
+			// Generates a random number
+			function generateNum(arrayToCheck, max)
+			{
+				let randomNum = Math.ceil(Math.random() * max); // generate a random number between 1 and the max
+				
+				if (arrayToCheck.indexOf(randomNum) != -1) return generateNum(arrayToCheck, max); // don't generate same number twice
+				arrayToCheck.push(randomNum); // store it in the array
+				return randomNum; // give them the number
+			}
+			
+			// startGame
+			// Starts a new game
+			function startGame()
+			{
+				document.getElementById("newGame").disabled = true; // disable the button
+				document.getElementById("info").innerHTML = ""; // hide the info box
+				randomNumbers = []; // clear up all the variables
+				cardArray = [];
+				selectedCard = null;
+				tries = 0;
+				
+				for (let i=0; i<8; i++) // generate 8 random cards
+				{
+					generateNum(randomNumbers, 52);
+				}
+				
+				let tempCardArray = [];
+				for (let randomNum in randomNumbers) // generate 2 cards for each random number
+				{
+					let num1 = generateNum(tempCardArray, 16); // get a random card
+					let num2 = generateNum(tempCardArray, 16); // get another card to pair it with
+					
+					cardArray[num1] = randomNumbers[randomNum]; // store both cards in the array
+					cardArray[num2] = randomNumbers[randomNum];
+					
+					document.getElementById(num1).src = "img/face.jpg"; // set them to be face cards
+					document.getElementById(num2).src = "img/face.jpg";
+				}
+				
+				inputBlocked = false; 
+			}
+			
+			// cardClick
+			// This function runs when you click a card to try to match it
+			function cardClick(card)
+			{
+				if (inputBlocked || selectedCard == card) return; // check if input is blocked or they are selecting the same card
+				if (!cardArray[card.id]) return; // make sure that the card isnt blank
+			
+				if (!selectedCard) // they don't have a card selected, so we set this card to be selected
+				{
+					selectedCard = card;
+					card.src = `img/${cardArray[card.id]}.JPG`; // flip it
+				}
+				else
+				{
+					inputBlocked = true; // block input to be unblocked in a second
+					
+					card.src = `img/${cardArray[card.id]}.JPG`; // flip it
+					
+					setTimeout(function()
+					{
+						if (cardArray[card.id] == cardArray[selectedCard.id]) // they matched it
+						{
+							selectedCard.src = "img/blank.jpg";
+							card.src = "img/blank.jpg";
+							cardArray[selectedCard.id] = null;
+							cardArray[card.id] = null;
+							
+							selectedCard = null;
+						}
+						else // no match
+						{
+							selectedCard.src = "img/face.jpg";
+							card.src = "img/face.jpg";
+							tries++;
+							document.getElementById("info").innerHTML = `You have made ${tries} tries`;
+						}
+						selectedCard = null;
+						inputBlocked = false;
+						
+						// win checker
+						let cardsRemaining = cardArray.filter(num => num != null); // get every card that's still in play
+						if (cardsRemaining.length == 0) // there isn't any cards left, they won
+						{
+							inputBlocked = true;
+							document.getElementById("info").innerHTML = `Congratulations, you completed the game with ${tries} tries!`;
+							document.getElementById("newGame").disabled = false;
+						}
+					}, 1000);
+				}
+			}
+		</script>
+	</head>
+	<body onload="startGame();">
+		<button id="newGame" onclick="startGame();">New Game</button>
+		<table align="center">
+			<tr>
+				<td><img id="1" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="2" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="3" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="4" src="img/face.jpg" onclick="cardClick(this);"></td>
+			</tr>
+			<tr>
+				<td><img id="5" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="6" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="7" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="8" src="img/face.jpg" onclick="cardClick(this);"></td>
+			</tr>
+			<tr>
+				<td><img id="9" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="10" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="11" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="12" src="img/face.jpg" onclick="cardClick(this);"></td>
+			</tr>
+			<tr>
+				<td><img id="13" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="14" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="15" src="img/face.jpg" onclick="cardClick(this);"></td>
+				<td><img id="16" src="img/face.jpg" onclick="cardClick(this);"></td>
+			</tr>
+		</table>
+		<h2 id="info"></h2>
+		
+	</body>
+</html>
